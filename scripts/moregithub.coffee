@@ -15,3 +15,13 @@ module.exports = (robot) ->
   robot.hear /#\d+/g, (msg) ->
     for match in msg.match
       describe_issue msg, match.replace '#', ''
+
+  describe_commit = (msg, sha) ->
+    bot_github_repo = github.qualified_repo process.env.HUBOT_GITHUB_REPO
+    github.get "https://api.github.com/repos/#{bot_github_repo}/commits/" + sha, (commit_obj) ->
+      commit_message = commit_obj.commit.message
+      msg.send "Commit " + sha + ": " + commit_message + "  http://github.com/" + bot_github_repo + "/commit/" + sha
+
+  robot.hear /[0-9a-f]{4,40}/g, (msg) ->
+    for match in msg.match
+      describe_commit msg, match
